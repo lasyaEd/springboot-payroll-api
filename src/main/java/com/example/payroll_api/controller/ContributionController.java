@@ -1,22 +1,28 @@
 package com.example.payroll_api.controller;
 
 import com.example.payroll_api.model.ContributionRequest;
+import com.example.payroll_api.model.ContributionResponse;
+import com.example.payroll_api.service.ContributionService;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/contributions")
 public class ContributionController {
 
+    @Autowired
+    private ContributionService contributionService;
+
     @PostMapping
-    public ResponseEntity<String> submitContribution(@Valid @RequestBody ContributionRequest request) {
-        // Basic business logic for demo
-        if (request.getContributionAmount() > 19500) {
-            return ResponseEntity.badRequest().body("Contribution exceeds IRS limit ($19,500)");
+    public ResponseEntity<ContributionResponse> submitContribution(@Valid @RequestBody ContributionRequest request) {
+        var response = contributionService.processContribution(request);
+
+        if ("error".equalsIgnoreCase(response.getStatus())) {
+            return ResponseEntity.badRequest().body(response);
         }
 
-        return ResponseEntity.ok("Contribution accepted for employee " + request.getEmployeeId());
+        return ResponseEntity.ok(response);
     }
-
 }
