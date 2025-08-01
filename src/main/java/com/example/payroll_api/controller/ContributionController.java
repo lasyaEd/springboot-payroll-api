@@ -17,12 +17,6 @@ public class ContributionController {
 
     @PostMapping
     public ResponseEntity<ContributionResponse> submitContribution(@Valid @RequestBody ContributionRequest request) {
-        var response = contributionService.processContribution(request);
-
-        if ("error".equalsIgnoreCase(response.getStatus())) {
-            return ResponseEntity.badRequest().body(response);
-        }
-
-        return ResponseEntity.ok(response);
+        return contributionService.processContribution(request);
     }
 }
