@@ -7,6 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
+
 @Service
 public class ContributionService {
 
@@ -26,9 +29,39 @@ public class ContributionService {
     }
 
     public ResponseEntity<?> getContributionByEmployeeId(String employeeId) {
-        return repository.findByEmployeeId(employeeId)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return repository.findByEmployeeId(employeeId).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+    }
+
+    public ResponseEntity<ContributionResponse> updateContribution(String employeeId, ContributionRequest request) {
+        Optional<ContributionRequest> existing = repository.findByEmployeeId(employeeId);
+
+        if (existing.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        ContributionRequest update = existing.get();
+        update.setContributionAmount(request.getContributionAmount());
+        update.setPlanId(request.getPlanId());
+
+        repository.save(update);
+
+        return ResponseEntity.ok(new ContributionResponse("success", "Contribution updated for employee " + employeeId));
+    }
+
+    public ResponseEntity<ContributionResponse> deleteContribution(String employeeId) {
+        Optional<ContributionRequest> existing = repository.findByEmployeeId(employeeId);
+
+        if (existing.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        repository.delete(existing.get());
+
+        return ResponseEntity.ok(new ContributionResponse("success", "Contribution deleted for employee " + employeeId));
+    }
+
+    public List<ContributionRequest> getAllContributions() {
+        return repository.findAll();
     }
 
 }
