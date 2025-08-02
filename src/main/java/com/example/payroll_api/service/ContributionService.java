@@ -2,11 +2,16 @@ package com.example.payroll_api.service;
 
 import com.example.payroll_api.model.ContributionRequest;
 import com.example.payroll_api.model.ContributionResponse;
+import com.example.payroll_api.repository.ContributionRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ContributionService {
+
+    @Autowired
+    private ContributionRepository repository;
 
     public ResponseEntity<ContributionResponse> processContribution(ContributionRequest request) {
         if (request.getContributionAmount() > 19500) {
@@ -14,7 +19,16 @@ public class ContributionService {
             return ResponseEntity.badRequest().body(error);
         }
 
+        repository.save(request);
+
         var success = new ContributionResponse("success", "Contribution accepted for employee " + request.getEmployeeId());
         return ResponseEntity.ok(success);
     }
+
+    public ResponseEntity<?> getContributionByEmployeeId(String employeeId) {
+        return repository.findByEmployeeId(employeeId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
 }

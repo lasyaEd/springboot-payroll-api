@@ -1,6 +1,8 @@
 package com.example.payroll_api.model;
 import jakarta.validation.constraints.*;
+import org.springframework.data.mongodb.core.mapping.Document;
 
+@Document(collection = "contributions")
 public class ContributionRequest {
     @NotBlank(message = "Employee ID is required")
     private String employeeId;

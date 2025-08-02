@@ -16,7 +16,12 @@ public class ContributionController {
     private ContributionService contributionService;
 
     @PostMapping
-    public ResponseEntity<ContributionResponse> submitContribution(@Valid @RequestBody ContributionRequest request) {
+    public ResponseEntity<ContributionResponse> contribution(@Valid @RequestBody ContributionRequest request) {
         return contributionService.processContribution(request);
+    }
+
+    @GetMapping
+    public ResponseEntity<?> contributionByEmployeeId(@RequestParam String employeeId) {
+        return contributionService.getContributionByEmployeeId(employeeId);
     }
 }
