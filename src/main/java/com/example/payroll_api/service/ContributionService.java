@@ -1,7 +1,9 @@
 package com.example.payroll_api.service;
 
+import com.example.payroll_api.messaging.EmailEventPublisher;
 import com.example.payroll_api.model.ContributionRequest;
 import com.example.payroll_api.model.ContributionResponse;
+import com.example.payroll_api.model.EmailRequest;
 import com.example.payroll_api.repository.ContributionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,8 +17,16 @@ public class ContributionService {
 
     @Autowired
     private ContributionRepository repository;
+    @Autowired
+    private EmailEventPublisher emailEventPublisher;
+
 
     public ResponseEntity<ContributionResponse> processContribution(ContributionRequest request) {
+
+        if (request.getPlanId() == null || request.getPlanId().isBlank()) {
+            EmailRequest event = new EmailRequest("MISSING_PLAN_ID", request.getEmployeeId());
+            emailEventPublisher.sendEmailEvent(event);
+        }
         if (request.getContributionAmount() > 19500) {
             var error = new ContributionResponse("error", "Contribution exceeds IRS limit ($19,500)");
             return ResponseEntity.badRequest().body(error);
